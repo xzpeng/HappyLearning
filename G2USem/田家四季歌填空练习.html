@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>田家四季歌填空练习</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f0f7ff;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, #6a89cc, #4a69bd);
+            border-radius: 15px;
+            color: white;
+            box-shadow: 0 5px 15px rgba(74, 105, 189, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .preview-panel {
+            flex: 2;
+            min-width: 500px;
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .section-title {
+            color: #4a69bd;
+            border-bottom: 3px solid #e0e7ff;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            font-size: 1.3rem;
+        }
+        
+        .poem-text {
+            font-size: 1.8rem;
+            line-height: 1.2;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px dashed #d0d9ff;
+        }
+        
+        .word {
+            display: inline-block;
+            margin: 0 2px;
+            padding: 0 3px;
+            transition: all 0.2s;
+            cursor: pointer;
+            border-radius: 4px;
+            position: relative;
+        }
+        
+        .word:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .word.blank {
+            border-bottom: 2px solid #ff6b6b;
+            color: transparent;
+            position: relative;
+            min-width: 40px;
+            margin: 0 5px;
+        }
+        
+        .word.blank::after {
+            content: "______";
+            color: #ff6b6b;
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .word.selected {
+            background-color: #ffeaa7;
+            color: #e17055;
+            font-weight: bold;
+        }
+        
+        .word-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 15px;
+        }
+        
+        .word-option {
+            padding: 8px 16px;
+            background-color: #e0e7ff;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1.1rem;
+        }
+        
+        .word-option:hover {
+            background-color: #d0d9ff;
+            transform: translateY(-2px);
+        }
+        
+        .word-option.active {
+            background-color: #4a69bd;
+            color: white;
+        }
+        
+        .instructions {
+            background-color: #fff9db;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 5px solid #fdcb6e;
+            font-size: 0.95rem;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            padding: 14px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .primary-btn {
+            background-color: #4a69bd;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background-color: #3c5aa8;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(74, 105, 189, 0.3);
+        }
+        
+        .secondary-btn {
+            background-color: #00b894;
+            color: white;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #00a085;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(0, 184, 148, 0.3);
+        }
+        
+        .tertiary-btn {
+            background-color: #ff7675;
+            color: white;
+        }
+        
+        .tertiary-btn:hover {
+            background-color: #e66767;
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(255, 118, 117, 0.3);
+        }
+        
+        .print-instructions {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border: 2px solid #e9ecef;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9rem;
+            border-top: 1px solid #ddd;
+        }
+        
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            
+            .preview-panel, .preview-panel * {
+                visibility: visible;
+            }
+            
+            .preview-panel {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                box-shadow: none;
+                border: none;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+        }
+        
+        .preview-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .preview-title {
+            font-size: 2.2rem;
+            color: #2d3436;
+            margin-bottom: 5px;
+        }
+        
+        .info-field {
+            border-bottom: 1px dashed #aaa;
+            min-width: 150px;
+            padding-bottom: 5px;
+        }
+        
+        .hint {
+            font-size: 1.1rem;
+            color: #4a69bd;
+            margin-top: 15px;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        .blank-count {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .blank-count i {
+            color: #4a69bd;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-seedling"></i> 田家四季歌填空练习</h1>
+        <p class="subtitle">二年级语文默写练习工具 | 选择要填空的字，生成练习纸</p>
+    </header>
+    
+    <div class="container">
+        <div class="control-panel">
+            <h2 class="section-title"><i class="fas fa-sliders-h"></i> 控制面板</h2>
+            
+            <div class="instructions">
+                <p><strong>使用说明：</strong></p>
+                <p>1. 点击诗歌中的任意字词，将其设置为填空</p>
+                <p>2. 或从下方常用错字列表中选择</p>
+                <p>3. 点击"生成填空预览"查看效果</p>
+                <p>4. 打印或导出PDF供学生练习</p>
+            </div>
+            
+            <h3 class="section-title"><i class="fas fa-edit"></i> 常用错字选择</h3>
+            <p>点击选择要设置为填空的字：</p>
+            <div class="word-list" id="wordOptions">
+                <!-- 常用错字选项将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="blank-count">
+                <i class="fas fa-check-circle"></i>
+                <span>已选择填空字：<span id="blankCount">0</span> 个</span>
+            </div>
+            
+            <div class="button-group">
+                <button class="primary-btn" id="previewBtn">
+                    <i class="fas fa-eye"></i> 生成填空预览
+                </button>
+                <button class="secondary-btn" id="resetBtn">
+                    <i class="fas fa-redo"></i> 重置所有填空
+                </button>
+            </div>
+            
+            <h3 class="section-title"><i class="fas fa-download"></i> 输出选项</h3>
+            <div class="button-group">
+                <button class="primary-btn" id="printBtn">
+                    <i class="fas fa-print"></i> 打印练习纸
+                </button>
+                <button class="secondary-btn" id="exportPdfBtn">
+                    <i class="fas fa-file-pdf"></i> 导出为PDF
+                </button>
+            </div>
+            
+            <div class="print-instructions no-print">
+                <p><strong>打印提示：</strong></p>
+                <p>1. 点击"打印练习纸"按钮，或使用浏览器打印功能 (Ctrl+P)</p>
+                <p>2. 在打印设置中选择"横向"以获得更好效果</p>
+                <p>3. 调整页边距为"最小"以节省纸张</p>
+            </div>
+        </div>
+        
+        <div class="preview-panel" id="previewPanel">
+            <div class="preview-header">
+                <h2 class="preview-title">田家四季歌填空练习</h2>
+                <p>姓名：__________ 日期：__________ 得分：__________</p>
+            </div>
+            
+            <div class="poem-text" id="poemText">
+                <!-- 诗歌内容将通过JavaScript动态生成 -->
+            </div>
+            
+            <div class="hint">
+                <p>请根据课文内容，在横线上填写正确的汉字。</p>
+            </div>
+            
+            <div style="margin-top: 40px; text-align: center; font-size: 1.2rem;">
+                <p>参考答案：</p>
+                <p id="answerKey" style="color: #666; font-size: 1.1rem; line-height: 1.8; transform: rotate(180deg);">
+                    <!-- 答案将通过JavaScript动态生成 -->
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="no-print">
+        <p>© 2023 田家四季歌填空练习工具 | 专为二年级学生设计 | 使用HTML5、CSS3和JavaScript构建</p>
+        <p>提示：此工具生成的练习纸可用于课堂练习、家庭作业或期中复习</p>
+    </footer>
+
+    <script>
+        // 田家四季歌完整内容
+        const poem = [
+            { line: "春季里，春风吹，", pinyin: "chūn jì lǐ, chūn fēng chuī," },
+            { line: "花开草长蝴蝶飞。", pinyin: "huā kāi cǎo zhǎng hú dié fēi." },
+            { line: "麦苗儿多嫩，桑叶儿正肥。", pinyin: "mài miáo er duō nèn, sāng yè er zhèng féi." },
+            { line: "", pinyin: "" },
+            { line: "夏季里，农事忙，", pinyin: "xià jì lǐ, nóng shì máng," },
+            { line: "采了蚕桑又插秧。", pinyin: "cǎi le cán sāng yòu chā yāng." },
+            { line: "早起勤耕作，归来戴月光。", pinyin: "zǎo qǐ qín gēng zuò, guī lái dài yuè guāng." },
+            { line: "", pinyin: "" },
+            { line: "秋季里，稻上场，", pinyin: "qiū jì lǐ, dào shàng cháng," },
+            { line: "谷像黄金粒粒香。", pinyin: "gǔ xiàng huáng jīn lì lì xiāng." },
+            { line: "身体虽辛苦，心里喜洋洋。", pinyin: "shēn tǐ suī xīn kǔ, xīn lǐ xǐ yáng yáng." },
+            { line: "", pinyin: "" },
+            { line: "冬季里，雪初晴，", pinyin: "dōng jì lǐ, xuě chū qíng," },
+            { line: "新制棉衣暖又轻。", pinyin: "xīn zhì mián yī nuǎn yòu qīng." },
+            { line: "一年农事了，大家笑盈盈。", pinyin: "yī nián nóng shì liǎo, dà jiā xiào yíng yíng." }
+        ];
+
+        // 常用错字列表（针对二年级学生）
+        const commonMistakes = [
+            "季", "吹", "长", "蝶", "麦", "苗", "嫩", "桑", "肥", 
+            "忙", "采", "蚕", "插", "秧", "勤", "耕", "戴", "场", 
+            "谷", "黄", "辛", "洋", "制", "棉", "暖", "轻",  "盈"
+        ];
+
+        // 存储被选为填空的字
+        let blankWords = new Set();
+        
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            initPoem();
+            initWordOptions();
+            initEventListeners();
+            updateBlankCount();
+        });
+        
+        // 初始化诗歌显示
+        function initPoem() {
+            const poemTextElement = document.getElementById('poemText');
+            poemTextElement.innerHTML = '';
+            
+            poem.forEach(item => {
+                if (item.line === "") {
+                    poemTextElement.innerHTML += '<br>';
+                    return;
+                }
+                
+                const lineDiv = document.createElement('div');
+                lineDiv.className = 'poem-line';
+                
+                // 将每一行拆分为单个字符
+                for (let i = 0; i < item.line.length; i++) {
+                    const char = item.line.charAt(i);
+                    const span = document.createElement('span');
+                    
+                    // 标点符号不加填空功能
+                    if (/[，。、]/.test(char)) {
+                        span.textContent = char;
+                        span.className = 'word punctuation';
+                    } else {
+                        span.textContent = char;
+                        span.className = 'word';
+                        span.dataset.char = char;
+                        
+                        // 如果这个字在blankWords中，设置为填空
+                        if (blankWords.has(char)) {
+                            span.classList.add('blank');
+                        }
+                        
+                        // 添加点击事件
+                        span.addEventListener('click', function() {
+                            toggleBlankWord(char, this);
+                        });
+                    }
+                    
+                    lineDiv.appendChild(span);
+                }
+                
+                poemTextElement.appendChild(lineDiv);
+            });
+            
+            updateAnswerKey();
+        }
+        
+        // 初始化常用错字选项
+        function initWordOptions() {
+            const wordOptionsElement = document.getElementById('wordOptions');
+            wordOptionsElement.innerHTML = '';
+            
+            commonMistakes.forEach(word => {
+                const option = document.createElement('div');
+                option.textContent = word;
+                option.className = 'word-option';
+                option.dataset.char = word;
+                
+                // 如果这个字已经被选为填空，添加active类
+                if (blankWords.has(word)) {
+                    option.classList.add('active');
+                }
+                
+                option.addEventListener('click', function() {
+                    toggleBlankWord(word, this);
+                });
+                
+                wordOptionsElement.appendChild(option);
+            });
+        }
+        
+        // 切换字的填空状态
+        function toggleBlankWord(char, element) {
+            if (blankWords.has(char)) {
+                blankWords.delete(char);
+                element.classList.remove('active');
+            } else {
+                blankWords.add(char);
+                element.classList.add('active');
+            }
+            
+            updateBlankCount();
+            initPoem(); // 重新生成诗歌显示
+        }
+        
+        // 更新填空计数
+        function updateBlankCount() {
+            document.getElementById('blankCount').textContent = blankWords.size;
+        }
+        
+        // 更新答案提示
+        function updateAnswerKey() {
+            const answerKeyElement = document.getElementById('answerKey');
+            if (blankWords.size === 0) {
+                answerKeyElement.textContent = "暂无填空，请先选择要填空的字";
+                return;
+            }
+            
+            let answerText = "";
+            Array.from(blankWords).forEach((word, index) => {
+                answerText += word;
+                if (index < blankWords.size - 1) {
+                    answerText += "、";
+                }
+            });
+            
+            answerKeyElement.textContent = answerText;
+        }
+        
+        // 初始化事件监听器
+        function initEventListeners() {
+            // 预览按钮
+            document.getElementById('previewBtn').addEventListener('click', function() {
+                // 预览功能已经在实时更新中实现
+                alert(`已生成填空练习，共 ${blankWords.size} 个填空字。`);
+            });
+            
+            // 重置按钮
+            document.getElementById('resetBtn').addEventListener('click', function() {
+                if (confirm("确定要重置所有填空吗？")) {
+                    blankWords.clear();
+                    initPoem();
+                    initWordOptions();
+                    updateBlankCount();
+                }
+            });
+            
+            // 打印按钮
+            document.getElementById('printBtn').addEventListener('click', function() {
+                window.print();
+            });
+            
+            // 导出PDF按钮
+            document.getElementById('exportPdfBtn').addEventListener('click', exportToPDF);
+        }
+        
+        // 导出为PDF
+        async function exportToPDF() {
+            const previewPanel = document.getElementById('previewPanel');
+            
+            // 显示加载提示
+            const originalText = this.innerHTML;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在生成PDF...';
+            this.disabled = true;
+            
+            try {
+                // 使用html2canvas将预览面板转换为图片
+                const canvas = await html2canvas(previewPanel, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff'
+                });
+                
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jspdf.jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+                
+                // 计算图片在A4纸上的尺寸
+                const imgWidth = 190;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+                
+                // 添加图片到PDF
+                pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
+                
+                // 保存PDF
+                pdf.save('田家四季歌填空练习.pdf');
+                
+                // 恢复按钮状态
+                this.innerHTML = originalText;
+                this.disabled = false;
+                
+            } catch (error) {
+                console.error('PDF导出错误:', error);
+                alert('PDF导出失败，请尝试打印功能或检查浏览器兼容性。');
+                
+                // 恢复按钮状态
+                this.innerHTML = originalText;
+                this.disabled = false;
+            }
+        }
+        
+        // 初始示例：自动选择一些常见错字
+        setTimeout(() => {
+            // 默认选择几个常见的错字
+            const defaultBlanks = ["蝶", "麦", "桑", "戴", "谷", "黄", "棉"];
+            defaultBlanks.forEach(word => {
+                blankWords.add(word);
+            });
+            initPoem();
+            initWordOptions();
+            updateBlankCount();
+        }, 500);
+    </script>
+</body>
+</html>
